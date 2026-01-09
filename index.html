@@ -94,7 +94,7 @@
       border-radius: 999px;
       background: #111827;
       border: 1px solid #374151;
-      color: #f87171; /* red-ish */
+      color: #f87171;
       font-weight: 700;
     }
 
@@ -654,15 +654,14 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  // TODO: paste your real config here
- const firebaseConfig = {
-  apiKey: "AIzaSyCEdR0fe9R6Q5LunJ7zoPlpRgqc7-okq54",
-  authDomain: "arlo-timetable.firebaseapp.com",
-  projectId: "arlo-timetable",
-  storageBucket: "arlo-timetable.firebasestorage.app",
-  messagingSenderId: "886053635938",
-  appId: "1:886053635938:web:57456a7a5b6689ec4d8e3b",
-  measurementId: "G-TZGM9MP2QT"
+  const firebaseConfig = {
+    apiKey: "AIzaSyCEdR0fe9R6Q5LunJ7zoPlpRgqc7-okq54",
+    authDomain: "arlo-timetable.firebaseapp.com",
+    projectId: "arlo-timetable",
+    storageBucket: "arlo-timetable.firebasestorage.app",
+    messagingSenderId: "886053635938",
+    appId: "1:886053635938:web:57456a7a5b6689ec4d8e3b",
+    measurementId: "G-TZGM9MP2QT"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -785,7 +784,7 @@
   const prevWeekBtn = document.getElementById("prevWeek");
   const nextWeekBtn = document.getElementById("nextWeek");
   const catchupSummaryEl = document.getElementById("catchupSummary");
-  const missedSummaryEl = document.getElementById("missedSummary"); // NEW
+  const missedSummaryEl = document.getElementById("missedSummary");
 
   // populate catch-up selects once
   days.forEach(day => {
@@ -808,13 +807,10 @@
   });
 
   catchupDaySelect.addEventListener("change", () => {
-    if (catchupDaySelect.value === "__HOME__") {
-      catchupPeriodSelect.disabled = true;
-    } else {
-      catchupPeriodSelect.disabled = false;
-    }
+    catchupPeriodSelect.disabled = (catchupDaySelect.value === "__HOME__");
   });
 
+  // IMPORTANT: declare these ONCE (this was the bug)
   let currentDocRef = null;
   let unsubscribe = null;
 
@@ -837,17 +833,13 @@
   }
 
   function describeSlotKey(slotKey) {
-    if (slotKey.startsWith("HOME_")) {
-      return "At home";
-    }
+    if (slotKey.startsWith("HOME_")) return "At home";
     const [dayName, periodKey] = slotKey.split("_");
     const period = timetable.periods.find(p => p.key === periodKey);
     const dayData = timetable.days[dayName];
     const slot = dayData ? dayData[periodKey] : null;
     const base = `${dayName} · ${period ? period.name : periodKey}`;
-    if (slot && slot.subject) {
-      return `${slot.subject} (${base})`;
-    }
+    if (slot && slot.subject) return `${slot.subject} (${base})`;
     return base;
   }
 
@@ -1031,17 +1023,12 @@
     for (const key in state.slotState) {
       const entry = state.slotState[key];
       if (!entry) continue;
-
       if (entry.needsCatchUp) catchupCount++;
       if (entry.missed) missedCount++;
     }
 
-    if (missedSummaryEl) {
-      missedSummaryEl.textContent = "Missed lessons this week: " + missedCount;
-    }
-
-    catchupSummaryEl.textContent =
-      "Catch-up pieces needed this week: " + catchupCount;
+    missedSummaryEl.textContent = "Missed lessons this week: " + missedCount;
+    catchupSummaryEl.textContent = "Catch-up pieces needed this week: " + catchupCount;
   }
 
   function renderGrid() {
@@ -1128,7 +1115,7 @@
   // ---- Week handling ----
   function getMonday(date) {
     const d = new Date(date);
-    const day = d.getDay(); // 0 Sun, 1 Mon...
+    const day = d.getDay();
     const diff = (day === 0 ? -6 : 1) - day;
     d.setDate(d.getDate() + diff);
     d.setHours(0, 0, 0, 0);
@@ -1153,15 +1140,11 @@
     weekLabelEl.textContent = formatWeekLabel(currentWeekDate);
   }
 
-  let currentDocRef = null;
-  let unsubscribe = null;
-
   function subscribeToCurrentWeek() {
     if (unsubscribe) unsubscribe();
     const key = getWeekKey(currentWeekDate);
     currentDocRef = doc(db, "timetables", "arlo-" + key);
 
-    // clear state while loading this week
     state = { subjectMeta: {}, slotState: {} };
     renderGrid();
 
@@ -1197,7 +1180,6 @@
   prevWeekBtn.addEventListener("click", () => changeWeek(-7));
   nextWeekBtn.addEventListener("click", () => changeWeek(7));
 
-  // initial
   updateWeekLabel();
   subscribeToCurrentWeek();
 </script>
