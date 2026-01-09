@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Arlo - Year 8 Timetable (Grid)</title>
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      background: #020617;
+      border-radius: 18px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.65);
+      padding: 20px 20px 26px;
+      box-sizing: border-box;
+      border: 1px solid #1f2937;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      margin: 0;
+    }
+
+    header span {
+      font-size: 0.9rem;
+      color: #9ca3af;
+    }
+
+    #jsStatus {
+      font-size: 0.8rem;
+      color: #f97316;
+    }
+
+    #jsStatus.ready {
+      color: #22c55e;
+    }
+
+    .week-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+    }
+
+    .week-bar button {
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 2px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .week-bar button:hover {
+      background: #1f2937;
+    }
+
+    #weekLabel {
+      font-weight: 500;
+    }
+
+    .catchup-summary {
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #374151;
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      max-width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 0;
+      table-layout: fixed;
+    }
+
+    thead {
+      background: #111827;
+    }
+
+    th, td {
+      padding: 6px 6px;
+      text-align: left;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #1f2937;
+      vertical-align: top;
+      word-wrap: break-word;
+    }
+
+    thead th:not(:first-child),
+    tbody td:not(.day-col) {
+      border-left: 1px solid #1f2937;
+    }
+
+    th {
+      font-weight: 600;
+      color: #d1d5db;
+      text-align: center;
+    }
+
+    th:first-child {
+      text-align: left;
+      width: 110px;
+    }
+
+    th.reg-col {
+      width: 60px;
+      font-size: 0.75rem;
+    }
+
+    th.tutor-col {
+      width: 150px;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #030712;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #020617;
+    }
+
+    .day-col {
+      background: #020617;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      font-weight: 600;
+    }
+
+    .period-name {
+      font-weight: 600;
+    }
+
+    .period-time {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-top: 2px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    td.cell-empty,
+    td.cell-special,
+    td.cell-lesson {
+      cursor: pointer;
+      position: relative;
+      transition: background 0.08s, transform 0.05s, box-shadow 0.08s;
+    }
+
+    td.cell-empty:hover,
+    td.cell-special:hover,
+    td.cell-lesson:hover {
+      background: #111827;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,0.45);
+      z-index: 2;
+    }
+
+    td.cell-empty {
+      text-align: center;
+      color: #4b5563;
+      font-style: italic;
+    }
+
+    td.cell-special {
+      text-align: center;
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    td.cell-lesson {
+      padding: 5px 6px;
+    }
+
+    td.reg-cell {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      background: #020617;
+      cursor: default;
+    }
+
+    .subject-row {
+      display: flex;
+      justify-content: flex-start;
+      gap: 4px;
+      align-items: baseline;
+    }
+
+    .subject-name {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .fav-subject {
+      color: #22c55e;
+    }
+
+    .cell-flags {
+      display: flex;
+      gap: 4px;
+      margin-top: 2px;
+      flex-wrap: wrap;
+      min-height: 1.1em;
+    }
+
+    .flag {
+      font-size: 0.7rem;
+      padding: 0 6px;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 16px;
+    }
+
+    .catchup-flag {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .missed-flag {
+      border-color: #dc2626;
+      color: #fecaca;
+    }
+
+    .notes-hint {
+      margin-top: 3px;
+      font-size: 0.7rem;
+      color: #22c55e;
+    }
+
+    .catchup-target-hint {
+      margin-top: 2px;
+      font-size: 0.72rem;
+      color: #38bdf8;
+    }
+
+    .footer-note {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .overlay.visible {
+      display: flex;
+    }
+
+    .overlay-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+    }
+
+    .lesson-popup {
+      position: relative;
+      background: #020617;
+      border-radius: 16px;
+      padding: 16px 18px 14px;
+      width: 100%;
+      max-width: 430px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+      border: 1px solid #1f2937;
+      z-index: 1;
+    }
+
+    .lesson-popup h2 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+    }
+
+    .lesson-popup h3 {
+      margin: 10px 0 4px;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+    }
+
+    .popup-meta {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .popup-meta div + div {
+      margin-top: 2px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0;
+      font-size: 0.85rem;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #22c55e;
+      cursor: pointer;
+    }
+
+    .notes-label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 6px;
+      font-size: 0.85rem;
+    }
+
+    textarea {
+      border-radius: 8px;
+      border: 1px solid #374151;
+      padding: 6px 8px;
+      background: #020617;
+      color: #e5e7eb;
+      resize: vertical;
+      min-height: 80px;
+      font-family: inherit;
+      font-size: 0.85rem;
+    }
+
+    .popup-actions {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .popup-actions button {
+      border-radius: 999px;
+      padding: 6px 14px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    #popupSave {
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 600;
+    }
+
+    #popupCancel {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 6px;
+      right: 8px;
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0;
+      line-height: 1;
+    }
+
+    .close-btn:hover {
+      color: #e5e7eb;
+    }
+
+    .catchup-list {
+      margin: 4px 0 6px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .catchup-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .catchup-remove-btn {
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      cursor: pointer;
+    }
+
+    .catchup-add-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 0.8rem;
+    }
+
+    .catchup-add-row label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .catchup-add-row select {
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.8rem;
+    }
+
+    .catchup-add-row button {
+      border-radius: 999px;
+      border: 1px solid #374151;
+      background: #111827;
+      color: #e5e7eb;
+      padding: 3px 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .catchup-hint {
+      margin-top: 3px;
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .catchup-empty {
+      font-size: 0.8rem;
+      color: #6b7280;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 10px;
+      }
+      .app {
+        padding: 14px 10px 18px;
+      }
+      th, td {
+        padding: 5px 3px;
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <h1>Arlo M · Year 8 Timetable</h1>
+      <span>Click any lesson, break or lunch to add notes, favourites and catch-up times.</span>
+    </div>
+    <span id="jsStatus">Connecting…</span>
+  </header>
+
+  <div class="week-bar">
+    <button id="prevWeek">&larr;</button>
+    <span id="weekLabel">Week</span>
+    <button id="nextWeek">&rarr;</button>
+  </div>
+
+  <div id="catchupSummary" class="catchup-summary">
+    Catch-up pieces needed this week: 0
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Day</th>
+        <th class="reg-col">
+          <div class="period-name">Reg</div>
+          <div class="period-time">08:45–09:05</div>
+        </th>
+        <th>
+          <div class="period-name">Lesson 1</div>
+          <div class="period-time">09:05–09:55</div>
+        </th>
+        <th>
+          <div class="period-name">Lesson 2</div>
+          <div class="period-time">09:55–10:45</div>
+        </th>
+        <th>
+          <div class="period-name">Break</div>
+          <div class="period-time">10:45–11:05</div>
+        </th>
+        <th>
+          <div class="period-name">Lesson 3</div>
+          <div class="period-time">11:05–11:55</div>
+        </th>
+        <th>
+          <div class="period-name">Lesson 4</div>
+          <div class="period-time">11:55–12:45</div>
+        </th>
+        <th>
+          <div class="period-name">Lunch</div>
+          <div class="period-time">12:45–13:35</div>
+        </th>
+        <th>
+          <div class="period-name">Lesson 5</div>
+          <div class="period-time">13:35–14:25</div>
+        </th>
+        <th>
+          <div class="period-name">Lesson 6</div>
+          <div class="period-time">14:25–15:15</div>
+        </th>
+        <th class="tutor-col">
+          <div class="period-name">Tutor Time</div>
+          <div class="period-time">15:15–15:20</div>
+        </th>
+      </tr>
+    </thead>
+    <tbody id="gridBody"></tbody>
+  </table>
+
+  <div class="footer-note">
+    Data is shared via Firebase. Each week is stored separately.
+  </div>
+</div>
+
+<!-- Popup overlay -->
+<div id="lessonOverlay" class="overlay">
+  <div class="overlay-backdrop"></div>
+  <div class="lesson-popup">
+    <button class="close-btn" id="popupClose" aria-label="Close">&times;</button>
+    <h2 id="popupTitle">Details</h2>
+    <div class="popup-meta">
+      <div id="popupSubject"></div>
+      <div id="popupWhen"></div>
+      <div id="popupRoom"></div>
+    </div>
+
+    <div id="popupFavRow" class="checkbox-row">
+      <input type="checkbox" id="popupFavouriteSubject">
+      <span>Mark this subject as a favourite</span>
+    </div>
+
+    <div id="popupNeedsRow" class="checkbox-row">
+      <input type="checkbox" id="popupNeedsCatchup">
+      <span>This lesson needs catching up</span>
+    </div>
+
+    <div id="popupMissedRow" class="checkbox-row">
+      <input type="checkbox" id="popupMissedLesson">
+      <span>Lesson was missed</span>
+    </div>
+
+    <label class="notes-label">
+      <span>Notes for this time</span>
+      <textarea id="popupNotes"
+        placeholder="What was this lesson or catch-up about? Homework, tests, anything to remember..."></textarea>
+    </label>
+
+    <div id="popupCatchupSection">
+      <h3>Catch-up times for this lesson</h3>
+      <div id="catchupList" class="catchup-list"></div>
+      <div class="catchup-add-row">
+        <label>
+          Day
+          <select id="catchupDaySelect"></select>
+        </label>
+        <label>
+          Time
+          <select id="catchupPeriodSelect"></select>
+        </label>
+        <button type="button" id="catchupAddBtn">Add</button>
+      </div>
+      <div class="catchup-hint">
+        Choose when the catch-up will happen. You can use break, lunch, another lesson, or at home.
+      </div>
+    </div>
+
+    <div id="popupScheduledForSection">
+      <h3>Catch-ups scheduled in this time</h3>
+      <div id="scheduledForList" class="catchup-list"></div>
+    </div>
+
+    <div class="popup-actions">
+      <button id="popupCancel" class="secondary">Cancel</button>
+      <button id="popupSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  // TODO: paste your real config here
+  const firebaseConfig = {
+  apiKey: "AIzaSyCEdR0fe9R6Q5LunJ7zoPlpRgqc7-okq54",
+  authDomain: "arlo-timetable.firebaseapp.com",
+  projectId: "arlo-timetable",
+  storageBucket: "arlo-timetable.firebasestorage.app",
+  messagingSenderId: "886053635938",
+  appId: "1:886053635938:web:57456a7a5b6689ec4d8e3b",
+  measurementId: "G-TZGM9MP2QT"
+};
+
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const timetable = {
+    periods: [
+      { key: "reg",   name: "Registration", start: "08:45", end: "09:05", special: false },
+      { key: "l1",    name: "Lesson 1",     start: "09:05", end: "09:55", special: false },
+      { key: "l2",    name: "Lesson 2",     start: "09:55", end: "10:45", special: false },
+      { key: "break", name: "Break",        start: "10:45", end: "11:05", special: true },
+      { key: "l3",    name: "Lesson 3",     start: "11:05", end: "11:55", special: false },
+      { key: "l4",    name: "Lesson 4",     start: "11:55", end: "12:45", special: false },
+      { key: "lunch", name: "Lunch",        start: "12:45", end: "13:35", special: true },
+      { key: "l5",    name: "Lesson 5",     start: "13:35", end: "14:25", special: false },
+      { key: "l6",    name: "Lesson 6",     start: "14:25", end: "15:15", special: false },
+      { key: "tutor", name: "Tutor Time",   start: "15:15", end: "15:20", special: true }
+    ],
+    days: {
+      "Monday": {
+        reg:   { subject: "Registration", room: null },
+        l1:    { subject: "Art",   room: "PHA 901" },
+        l2:    { subject: "Eng",   room: "JGR 304" },
+        break: null,
+        l3:    { subject: "Sci",   room: "KTU 308" },
+        l4:    { subject: "Maths", room: "VWA 303" },
+        lunch: null,
+        l5:    { subject: "Music", room: "Chapel" },
+        l6:    { subject: "DT",    room: "ADB 704" },
+        tutor: null
+      },
+      "Tuesday": {
+        reg:   { subject: "Registration", room: null },
+        l1:    { subject: "Eng",       room: "JGR 304" },
+        l2:    { subject: "Computing", room: "APR 904" },
+        break: null,
+        l3:    { subject: "H. Cook",   room: "AJO 601" },
+        l4:    { subject: "PE",        room: "COT 505" },
+        lunch: null,
+        l5:    { subject: "Maths",     room: "VWA 303" },
+        l6:    { subject: "P. Arts",   room: "RDO 1608" },
+        tutor: null
+      },
+      "Wednesday": {
+        reg:   { subject: "Registration", room: null },
+        l1:    { subject: "Hums",  room: "MCO 407" },
+        l2:    { subject: "Com",   room: "RPA 307" },
+        break: null,
+        l3:    { subject: "Eng",   room: "JGR 304" },
+        l4:    { subject: "Maths", room: "VWA 303" },
+        lunch: null,
+        l5:    { subject: "Hums",  room: "MCO 407" },
+        l6:    { subject: "Sci",   room: "KTU 308" },
+        tutor: null
+      },
+      "Thursday": {
+        reg:   { subject: "Registration", room: null },
+        l1:    { subject: "DT",   room: "ADB 704" },
+        l2:    { subject: "Eng",  room: "JGR 304" },
+        break: null,
+        l3:    { subject: "PE",   room: "COT 509" },
+        l4:    { subject: "Maths",room: "VWA 303" },
+        lunch: null,
+        l5:    { subject: "Sci",  room: "KTU 308" },
+        l6:    { subject: "PE",   room: "COT 505" },
+        tutor: null
+      },
+      "Friday": {
+        reg:   { subject: "Registration", room: null },
+        l1:    { subject: "Computing",          room: "APR 904" },
+        l2:    { subject: "Citizen",            room: "EDO 406" },
+        break: null,
+        l3:    { subject: "Maths",              room: "VWA 303" },
+        l4:    { subject: "Eng",                room: "JGR 304" },
+        lunch: null,
+        l5:    { subject: "Leisure Curriculum", room: null },
+        l6:    null,
+        tutor: null
+      }
+    }
+  };
+
+  const days = Object.keys(timetable.days);
+
+  let state = {
+    subjectMeta: {},
+    slotState: {}
+  };
+
+  function slotKeyFor(dayName, periodKey) {
+    return dayName + "_" + periodKey;
+  }
+
+  const jsStatusEl = document.getElementById("jsStatus");
+  const gridBody = document.getElementById("gridBody");
+  const overlayEl = document.getElementById("lessonOverlay");
+  const popupTitleEl = document.getElementById("popupTitle");
+  const popupSubjectEl = document.getElementById("popupSubject");
+  const popupWhenEl = document.getElementById("popupWhen");
+  const popupRoomEl = document.getElementById("popupRoom");
+  const popupFavouriteSubjectEl = document.getElementById("popupFavouriteSubject");
+  const popupNeedsCatchupEl = document.getElementById("popupNeedsCatchup");
+  const popupMissedLessonEl = document.getElementById("popupMissedLesson");
+  const popupNotesEl = document.getElementById("popupNotes");
+  const favRow = document.getElementById("popupFavRow");
+  const needsRow = document.getElementById("popupNeedsRow");
+  const missedRow = document.getElementById("popupMissedRow");
+  const catchupSection = document.getElementById("popupCatchupSection");
+  const scheduledForSection = document.getElementById("popupScheduledForSection");
+  const scheduledForListEl = document.getElementById("scheduledForList");
+  const catchupDaySelect = document.getElementById("catchupDaySelect");
+  const catchupPeriodSelect = document.getElementById("catchupPeriodSelect");
+  const catchupListEl = document.getElementById("catchupList");
+  const catchupAddBtn = document.getElementById("catchupAddBtn");
+  const popupSaveBtn = document.getElementById("popupSave");
+  const popupCancelBtn = document.getElementById("popupCancel");
+  const popupCloseBtn = document.getElementById("popupClose");
+
+  const weekLabelEl = document.getElementById("weekLabel");
+  const prevWeekBtn = document.getElementById("prevWeek");
+  const nextWeekBtn = document.getElementById("nextWeek");
+  const catchupSummaryEl = document.getElementById("catchupSummary");
+
+  // populate catch-up selects once
+  days.forEach(day => {
+    const opt = document.createElement("option");
+    opt.value = day;
+    opt.textContent = day;
+    catchupDaySelect.appendChild(opt);
+  });
+  // extra option for at home
+  const homeOpt = document.createElement("option");
+  homeOpt.value = "__HOME__";
+  homeOpt.textContent = "At home";
+  catchupDaySelect.appendChild(homeOpt);
+
+  timetable.periods.forEach(period => {
+    const opt = document.createElement("option");
+    opt.value = period.key;
+    opt.textContent = `${period.name} (${period.start}–${period.end})`;
+    catchupPeriodSelect.appendChild(opt);
+  });
+
+  catchupDaySelect.addEventListener("change", () => {
+    if (catchupDaySelect.value === "__HOME__") {
+      catchupPeriodSelect.disabled = true;
+    } else {
+      catchupPeriodSelect.disabled = false;
+    }
+  });
+
+  let currentDocRef = null;
+  let unsubscribe = null;
+
+  function saveState() {
+    if (!currentDocRef) return;
+    return setDoc(currentDocRef, state);
+  }
+
+  function buildCatchUpIndex() {
+    const index = {};
+    for (const originKey in state.slotState) {
+      const entry = state.slotState[originKey];
+      if (!entry || !Array.isArray(entry.catchUpSlots)) continue;
+      entry.catchUpSlots.forEach(slotKey => {
+        if (!index[slotKey]) index[slotKey] = [];
+        index[slotKey].push(originKey);
+      });
+    }
+    return index;
+  }
+
+  function describeSlotKey(slotKey) {
+    if (slotKey.startsWith("HOME_")) {
+      return "At home";
+    }
+    const [dayName, periodKey] = slotKey.split("_");
+    const period = timetable.periods.find(p => p.key === periodKey);
+    const dayData = timetable.days[dayName];
+    const slot = dayData ? dayData[periodKey] : null;
+    const base = `${dayName} · ${period ? period.name : periodKey}`;
+    if (slot && slot.subject) {
+      return `${slot.subject} (${base})`;
+    }
+    return base;
+  }
+
+  let currentSlotKey = null;
+  let currentIsLesson = false;
+  let currentSubject = null;
+  let currentCatchUpSlots = [];
+
+  function renderCatchupList() {
+    catchupListEl.innerHTML = "";
+    if (!currentIsLesson) return;
+
+    if (!currentCatchUpSlots || currentCatchUpSlots.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "catchup-empty";
+      empty.textContent = "No catch-up times set yet.";
+      catchupListEl.appendChild(empty);
+      return;
+    }
+
+    currentCatchUpSlots.forEach(slotKey => {
+      const item = document.createElement("div");
+      item.className = "catchup-item";
+
+      const label = document.createElement("span");
+      label.textContent = describeSlotKey(slotKey);
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "catchup-remove-btn";
+      btn.textContent = "Remove";
+      btn.addEventListener("click", () => {
+        currentCatchUpSlots = currentCatchUpSlots.filter(k => k !== slotKey);
+        renderCatchupList();
+      });
+
+      item.appendChild(label);
+      item.appendChild(btn);
+      catchupListEl.appendChild(item);
+    });
+  }
+
+  catchupAddBtn.addEventListener("click", () => {
+    if (!currentIsLesson) return;
+    const day = catchupDaySelect.value;
+    let key;
+    if (day === "__HOME__") {
+      key = "HOME_" + currentSlotKey;
+    } else {
+      const periodKey = catchupPeriodSelect.value;
+      key = slotKeyFor(day, periodKey);
+    }
+    if (!currentCatchUpSlots.includes(key)) {
+      currentCatchUpSlots.push(key);
+      renderCatchupList();
+    }
+  });
+
+  function renderScheduledForList(originKeys) {
+    scheduledForListEl.innerHTML = "";
+    if (!originKeys || originKeys.length === 0) {
+      scheduledForSection.style.display = "none";
+      return;
+    }
+    scheduledForSection.style.display = "block";
+    originKeys.forEach(originKey => {
+      const item = document.createElement("div");
+      item.className = "catchup-item";
+      const label = document.createElement("span");
+      label.textContent = describeSlotKey(originKey);
+      item.appendChild(label);
+      scheduledForListEl.appendChild(item);
+    });
+  }
+
+  function openSlotPopup(day, periodKey) {
+    if (periodKey === "reg") return;
+
+    const period = timetable.periods.find(p => p.key === periodKey);
+    const dayData = timetable.days[day];
+    const slot = dayData[periodKey];
+    const key = slotKeyFor(day, periodKey);
+    const slotState = state.slotState[key] || {};
+    const catchUpIndex = buildCatchUpIndex();
+    const scheduledForHere = catchUpIndex[key] || [];
+
+    currentSlotKey = key;
+    currentSubject = slot && slot.subject ? slot.subject : null;
+    currentIsLesson = !!slot && !period.special && !!slot.subject;
+
+    const whenText = `${day} · ${period.name} · ${period.start} – ${period.end}`;
+
+    if (currentIsLesson) {
+      popupTitleEl.textContent = slot.subject;
+      popupSubjectEl.textContent = `Subject: ${slot.subject}`;
+      popupRoomEl.textContent = slot.room ? `Room: ${slot.room}` : "Room: (not specified)";
+    } else if (slot && slot.subject) {
+      popupTitleEl.textContent = slot.subject;
+      popupSubjectEl.textContent = `Time slot: ${slot.subject}`;
+      popupRoomEl.textContent = "Room: (not applicable)";
+    } else if (period.special) {
+      popupTitleEl.textContent = period.name;
+      popupSubjectEl.textContent = `Time slot: ${period.name}`;
+      popupRoomEl.textContent = "Room: (not applicable)";
+    } else {
+      popupTitleEl.textContent = "Free / other time";
+      popupSubjectEl.textContent = "Time slot with no set lesson";
+      popupRoomEl.textContent = "";
+    }
+
+    popupWhenEl.textContent = whenText;
+    popupNotesEl.value = slotState.notes || "";
+
+    if (currentIsLesson && currentSubject) {
+      const subjectMeta = state.subjectMeta[currentSubject] || {};
+      popupFavouriteSubjectEl.checked = !!subjectMeta.favourite;
+      popupNeedsCatchupEl.checked = !!slotState.needsCatchUp;
+      popupMissedLessonEl.checked = !!slotState.missed;
+      currentCatchUpSlots = Array.isArray(slotState.catchUpSlots)
+        ? slotState.catchUpSlots.slice()
+        : [];
+      favRow.style.display = "flex";
+      needsRow.style.display = "flex";
+      missedRow.style.display = "flex";
+      catchupSection.style.display = "block";
+    } else {
+      popupFavouriteSubjectEl.checked = false;
+      popupNeedsCatchupEl.checked = false;
+      popupMissedLessonEl.checked = false;
+      currentCatchUpSlots = [];
+      favRow.style.display = "none";
+      needsRow.style.display = "none";
+      missedRow.style.display = "none";
+      catchupSection.style.display = "none";
+    }
+
+    renderCatchupList();
+    renderScheduledForList(scheduledForHere);
+
+    overlayEl.classList.add("visible");
+  }
+
+  function closeLessonPopup() {
+    overlayEl.classList.remove("visible");
+    currentSlotKey = null;
+    currentSubject = null;
+    currentCatchUpSlots = [];
+  }
+
+  popupSaveBtn.addEventListener("click", () => {
+    if (!currentSlotKey) return;
+
+    if (!state.slotState[currentSlotKey]) state.slotState[currentSlotKey] = {};
+    const entry = state.slotState[currentSlotKey];
+    entry.notes = popupNotesEl.value;
+
+    if (currentIsLesson && currentSubject) {
+      if (!state.subjectMeta[currentSubject]) state.subjectMeta[currentSubject] = {};
+      state.subjectMeta[currentSubject].favourite = popupFavouriteSubjectEl.checked;
+      entry.needsCatchUp = popupNeedsCatchupEl.checked;
+      entry.missed = popupMissedLessonEl.checked;
+      entry.catchUpSlots = currentCatchUpSlots.slice();
+    }
+
+    saveState();
+    closeLessonPopup();
+  });
+
+  popupCancelBtn.addEventListener("click", closeLessonPopup);
+  popupCloseBtn.addEventListener("click", closeLessonPopup);
+  overlayEl.addEventListener("click", e => {
+    if (e.target === overlayEl || e.target.classList.contains("overlay-backdrop")) {
+      closeLessonPopup();
+    }
+  });
+
+  function updateCatchupSummary() {
+    let count = 0;
+    for (const key in state.slotState) {
+      const entry = state.slotState[key];
+      if (entry && entry.needsCatchUp) count++;
+    }
+    catchupSummaryEl.textContent =
+      "Catch-up pieces needed this week: " + count;
+  }
+
+  function renderGrid() {
+    const catchUpIndex = buildCatchUpIndex();
+    gridBody.innerHTML = "";
+
+    days.forEach(dayName => {
+      const tr = document.createElement("tr");
+
+      const dayCell = document.createElement("td");
+      dayCell.className = "day-col";
+      dayCell.textContent = dayName;
+      tr.appendChild(dayCell);
+
+      timetable.periods.forEach(period => {
+        const dayData = timetable.days[dayName];
+        const slot = dayData[period.key];
+        const key = slotKeyFor(dayName, period.key);
+        const slotState = state.slotState[key] || {};
+        const scheduledFor = catchUpIndex[key] || [];
+        const hasNotes = !!(slotState.notes && slotState.notes.trim().length > 0);
+
+        const td = document.createElement("td");
+        td.dataset.day = dayName;
+        td.dataset.period = period.key;
+
+        if (period.key === "reg") {
+          td.className = "reg-cell";
+          td.textContent = "Reg";
+        } else {
+          td.addEventListener("click", () => openSlotPopup(dayName, period.key));
+
+          if (!slot && !period.special) {
+            td.className = "cell-empty";
+            td.innerHTML = "<span>–</span>";
+          } else if (period.special) {
+            td.className = "cell-special";
+            td.textContent = period.name;
+          } else {
+            td.className = "cell-lesson";
+            const subject = slot.subject;
+            const subjectMeta = state.subjectMeta[subject] || {};
+            const isFavSubject = !!subjectMeta.favourite;
+            const needsCatchUp = !!slotState.needsCatchUp;
+            const missed = !!slotState.missed;
+            const subjectClass = "subject-name" + (isFavSubject ? " fav-subject" : "");
+
+            td.innerHTML =
+              `<div class="subject-row">
+                <span class="${subjectClass}">${subject}</span>
+              </div>
+              <div class="cell-flags">
+                ${needsCatchUp ? `<span class="flag catchup-flag">📖</span>` : ""}
+                ${missed ? `<span class="flag missed-flag">❌</span>` : ""}
+              </div>`;
+          }
+
+          if (hasNotes) {
+            const notesHint = document.createElement("div");
+            notesHint.className = "notes-hint";
+            notesHint.textContent = "Notes saved";
+            td.appendChild(notesHint);
+          }
+
+          if (scheduledFor.length > 0) {
+            const hint = document.createElement("div");
+            hint.className = "catchup-target-hint";
+            hint.textContent = scheduledFor.length === 1
+              ? "Catch-up scheduled here"
+              : `${scheduledFor.length} catch-ups scheduled here`;
+            td.appendChild(hint);
+          }
+        }
+
+        tr.appendChild(td);
+      });
+
+      gridBody.appendChild(tr);
+    });
+
+    updateCatchupSummary();
+  }
+
+  // ---- Week handling ----
+  function getMonday(date) {
+    const d = new Date(date);
+    const day = d.getDay(); // 0 Sun, 1 Mon...
+    const diff = (day === 0 ? -6 : 1) - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function getWeekKey(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  }
+
+  function formatWeekLabel(d) {
+    const opts = { day: "numeric", month: "short", year: "numeric" };
+    return "Week of " + d.toLocaleDateString(undefined, opts);
+  }
+
+  let currentWeekDate = getMonday(new Date());
+
+  function updateWeekLabel() {
+    weekLabelEl.textContent = formatWeekLabel(currentWeekDate);
+  }
+
+  function subscribeToCurrentWeek() {
+    if (unsubscribe) unsubscribe();
+    const key = getWeekKey(currentWeekDate);
+    currentDocRef = doc(db, "timetables", "arlo-" + key);
+
+    // clear state while loading this week
+    state = { subjectMeta: {}, slotState: {} };
+    renderGrid();
+
+    unsubscribe = onSnapshot(
+      currentDocRef,
+      docSnap => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          state.subjectMeta = data.subjectMeta || {};
+          state.slotState = data.slotState || {};
+        } else {
+          saveState();
+        }
+        renderGrid();
+        jsStatusEl.textContent = "Synced via Firebase";
+        jsStatusEl.classList.add("ready");
+      },
+      error => {
+        console.error("Firestore error:", error);
+        jsStatusEl.textContent = "Sync error";
+      }
+    );
+  }
+
+  function changeWeek(offsetDays) {
+    const d = new Date(currentWeekDate);
+    d.setDate(d.getDate() + offsetDays);
+    currentWeekDate = getMonday(d);
+    updateWeekLabel();
+    subscribeToCurrentWeek();
+  }
+
+  prevWeekBtn.addEventListener("click", () => changeWeek(-7));
+  nextWeekBtn.addEventListener("click", () => changeWeek(7));
+
+  // initial
+  updateWeekLabel();
+  subscribeToCurrentWeek();
+</script>
+</body>
+</html>
