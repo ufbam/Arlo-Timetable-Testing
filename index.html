@@ -43,9 +43,14 @@
       margin: 0;
     }
 
-    header span {
-      font-size: 0.9rem;
-      color: #9ca3af;
+    /* UPDATED: top instruction text is white + bold + multiline */
+    .header-instructions {
+      font-size: 0.95rem;
+      color: #e5e7eb;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-top: 6px;
+      white-space: normal;
     }
 
     #jsStatus {
@@ -94,7 +99,7 @@
       background: #111827;
       border: 1px solid #374151;
       color: #f87171;
-      font-weight: 700;
+      font-weight: 800;
     }
 
     .catchup-summary {
@@ -106,7 +111,15 @@
       background: #111827;
       border: 1px solid #374151;
       color: #facc15;
-      font-weight: 600;
+      font-weight: 700;
+    }
+
+    /* small inline warning next to missed tally */
+    .missed-warning {
+      color: #facc15;
+      font-weight: 900;
+      margin-left: 8px;
+      white-space: nowrap;
     }
 
     table {
@@ -153,7 +166,7 @@
       font-size: 0.75rem;
     }
 
-    /* UPDATED: Tutor Time same width as Reg */
+    /* Tutor same width as Reg */
     th.tutor-col {
       width: 60px;
       font-size: 0.75rem;
@@ -270,7 +283,6 @@
       color: #fecaca;
     }
 
-    /* NEW: Good lesson flag styling */
     .good-flag {
       border-color: #22c55e;
       color: #86efac;
@@ -497,16 +509,9 @@
     }
 
     @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-      .app {
-        padding: 14px 10px 18px;
-      }
-      th, td {
-        padding: 5px 3px;
-        font-size: 0.78rem;
-      }
+      body { padding: 10px; }
+      .app { padding: 14px 10px 18px; }
+      th, td { padding: 5px 3px; font-size: 0.78rem; }
     }
   </style>
 </head>
@@ -515,7 +520,11 @@
   <header>
     <div>
       <h1>Arlo M · Year 8 Timetable</h1>
-      <span>Click any lesson to mark it as good, missed or catch up required. Add notes or schedule catch up. 3 missed lessons or 3 pieces of catch up = Missed leisure on Friday</span>
+      <div class="header-instructions">
+        Click any lesson to mark it as good, missed or catch up required.<br>
+        Add notes or schedule catch up.<br>
+        3 missed lessons or 3 pieces of catch up = Missed leisure on Friday
+      </div>
     </div>
     <span id="jsStatus">Connecting…</span>
   </header>
@@ -600,7 +609,6 @@
       <div id="popupRoom"></div>
     </div>
 
-    <!-- UPDATED: Favourite removed, replaced with Good lesson -->
     <div id="popupGoodRow" class="checkbox-row">
       <input type="checkbox" id="popupGoodLesson">
       <span>Good lesson</span>
@@ -749,7 +757,6 @@
 
   const days = Object.keys(timetable.days);
 
-  // UPDATED: no subjectMeta, only slotState
   let state = {
     slotState: {}
   };
@@ -766,12 +773,12 @@
   const popupWhenEl = document.getElementById("popupWhen");
   const popupRoomEl = document.getElementById("popupRoom");
 
-  const popupGoodLessonEl = document.getElementById("popupGoodLesson"); // NEW
+  const popupGoodLessonEl = document.getElementById("popupGoodLesson");
   const popupNeedsCatchupEl = document.getElementById("popupNeedsCatchup");
   const popupMissedLessonEl = document.getElementById("popupMissedLesson");
   const popupNotesEl = document.getElementById("popupNotes");
 
-  const goodRow = document.getElementById("popupGoodRow"); // NEW
+  const goodRow = document.getElementById("popupGoodRow");
   const needsRow = document.getElementById("popupNeedsRow");
   const missedRow = document.getElementById("popupMissedRow");
   const catchupSection = document.getElementById("popupCatchupSection");
@@ -799,7 +806,6 @@
     opt.textContent = day;
     catchupDaySelect.appendChild(opt);
   });
-  // extra option for at home
   const homeOpt = document.createElement("option");
   homeOpt.value = "__HOME__";
   homeOpt.textContent = "At home";
@@ -1030,7 +1036,12 @@
       if (entry.missed) missedCount++;
     }
 
-    missedSummaryEl.textContent = "Missed lessons this week: " + missedCount;
+    // UPDATED: warning when missedCount === 2
+    const warning = (missedCount === 2)
+      ? `<span class="missed-warning">(one more missed lesson = no leisure Friday)</span>`
+      : "";
+
+    missedSummaryEl.innerHTML = `Missed lessons this week: ${missedCount} ${warning}`;
     catchupSummaryEl.textContent = "Catch-up pieces needed this week: " + catchupCount;
   }
 
