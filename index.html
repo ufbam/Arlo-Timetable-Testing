@@ -85,7 +85,6 @@
       font-weight: 500;
     }
 
-    /* NEW: Missed summary pill */
     .missed-summary {
       text-align: center;
       margin-bottom: 8px;
@@ -154,8 +153,10 @@
       font-size: 0.75rem;
     }
 
+    /* UPDATED: Tutor Time same width as Reg */
     th.tutor-col {
-      width: 150px;
+      width: 60px;
+      font-size: 0.75rem;
     }
 
     tbody tr:nth-child(odd) {
@@ -238,10 +239,6 @@
       font-size: 0.85rem;
     }
 
-    .fav-subject {
-      color: #22c55e;
-    }
-
     .cell-flags {
       display: flex;
       gap: 4px;
@@ -271,6 +268,12 @@
     .missed-flag {
       border-color: #dc2626;
       color: #fecaca;
+    }
+
+    /* NEW: Good lesson flag styling */
+    .good-flag {
+      border-color: #22c55e;
+      color: #86efac;
     }
 
     .notes-hint {
@@ -512,7 +515,7 @@
   <header>
     <div>
       <h1>Arlo M · Year 8 Timetable</h1>
-      <span>Click any lesson, break or lunch to add notes, favourites and catch-up times.</span>
+      <span>Click any lesson to mark it as good, missed or catch up required. Add notes or schedule catch up. 3 missed lessons or 3 pieces of catch up = Missed leisure on Friday</span>
     </div>
     <span id="jsStatus">Connecting…</span>
   </header>
@@ -523,7 +526,6 @@
     <button id="nextWeek">&rarr;</button>
   </div>
 
-  <!-- NEW: Missed tally above catch-up tally -->
   <div id="missedSummary" class="missed-summary">
     Missed lessons this week: 0
   </div>
@@ -573,7 +575,7 @@
           <div class="period-time">14:25–15:15</div>
         </th>
         <th class="tutor-col">
-          <div class="period-name">Tutor Time</div>
+          <div class="period-name">Tutor</div>
           <div class="period-time">15:15–15:20</div>
         </th>
       </tr>
@@ -598,9 +600,10 @@
       <div id="popupRoom"></div>
     </div>
 
-    <div id="popupFavRow" class="checkbox-row">
-      <input type="checkbox" id="popupFavouriteSubject">
-      <span>Mark this subject as a favourite</span>
+    <!-- UPDATED: Favourite removed, replaced with Good lesson -->
+    <div id="popupGoodRow" class="checkbox-row">
+      <input type="checkbox" id="popupGoodLesson">
+      <span>Good lesson</span>
     </div>
 
     <div id="popupNeedsRow" class="checkbox-row">
@@ -655,7 +658,7 @@
   import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
-    apiKey: "AIzaSyBkuj4C-VqFgDrIZJeMuy3YvxemadYs21s",
+    apiKey: "AIzaSyCEdR0fe9R6Q5LunJ7zoPlpRgqc7-okq54",
     authDomain: "arlo-timetable.firebaseapp.com",
     projectId: "arlo-timetable",
     storageBucket: "arlo-timetable.firebasestorage.app",
@@ -746,8 +749,8 @@
 
   const days = Object.keys(timetable.days);
 
+  // UPDATED: no subjectMeta, only slotState
   let state = {
-    subjectMeta: {},
     slotState: {}
   };
 
@@ -762,14 +765,17 @@
   const popupSubjectEl = document.getElementById("popupSubject");
   const popupWhenEl = document.getElementById("popupWhen");
   const popupRoomEl = document.getElementById("popupRoom");
-  const popupFavouriteSubjectEl = document.getElementById("popupFavouriteSubject");
+
+  const popupGoodLessonEl = document.getElementById("popupGoodLesson"); // NEW
   const popupNeedsCatchupEl = document.getElementById("popupNeedsCatchup");
   const popupMissedLessonEl = document.getElementById("popupMissedLesson");
   const popupNotesEl = document.getElementById("popupNotes");
-  const favRow = document.getElementById("popupFavRow");
+
+  const goodRow = document.getElementById("popupGoodRow"); // NEW
   const needsRow = document.getElementById("popupNeedsRow");
   const missedRow = document.getElementById("popupMissedRow");
   const catchupSection = document.getElementById("popupCatchupSection");
+
   const scheduledForSection = document.getElementById("popupScheduledForSection");
   const scheduledForListEl = document.getElementById("scheduledForList");
   const catchupDaySelect = document.getElementById("catchupDaySelect");
@@ -810,7 +816,6 @@
     catchupPeriodSelect.disabled = (catchupDaySelect.value === "__HOME__");
   });
 
-  // IMPORTANT: declare these ONCE (this was the bug)
   let currentDocRef = null;
   let unsubscribe = null;
 
@@ -845,7 +850,6 @@
 
   let currentSlotKey = null;
   let currentIsLesson = false;
-  let currentSubject = null;
   let currentCatchUpSlots = [];
 
   function renderCatchupList() {
@@ -927,7 +931,6 @@
     const scheduledForHere = catchUpIndex[key] || [];
 
     currentSlotKey = key;
-    currentSubject = slot && slot.subject ? slot.subject : null;
     currentIsLesson = !!slot && !period.special && !!slot.subject;
 
     const whenText = `${day} · ${period.name} · ${period.start} – ${period.end}`;
@@ -953,24 +956,26 @@
     popupWhenEl.textContent = whenText;
     popupNotesEl.value = slotState.notes || "";
 
-    if (currentIsLesson && currentSubject) {
-      const subjectMeta = state.subjectMeta[currentSubject] || {};
-      popupFavouriteSubjectEl.checked = !!subjectMeta.favourite;
+    if (currentIsLesson) {
+      popupGoodLessonEl.checked = !!slotState.goodLesson;
       popupNeedsCatchupEl.checked = !!slotState.needsCatchUp;
       popupMissedLessonEl.checked = !!slotState.missed;
+
       currentCatchUpSlots = Array.isArray(slotState.catchUpSlots)
         ? slotState.catchUpSlots.slice()
         : [];
-      favRow.style.display = "flex";
+
+      goodRow.style.display = "flex";
       needsRow.style.display = "flex";
       missedRow.style.display = "flex";
       catchupSection.style.display = "block";
     } else {
-      popupFavouriteSubjectEl.checked = false;
+      popupGoodLessonEl.checked = false;
       popupNeedsCatchupEl.checked = false;
       popupMissedLessonEl.checked = false;
       currentCatchUpSlots = [];
-      favRow.style.display = "none";
+
+      goodRow.style.display = "none";
       needsRow.style.display = "none";
       missedRow.style.display = "none";
       catchupSection.style.display = "none";
@@ -985,7 +990,6 @@
   function closeLessonPopup() {
     overlayEl.classList.remove("visible");
     currentSlotKey = null;
-    currentSubject = null;
     currentCatchUpSlots = [];
   }
 
@@ -996,9 +1000,8 @@
     const entry = state.slotState[currentSlotKey];
     entry.notes = popupNotesEl.value;
 
-    if (currentIsLesson && currentSubject) {
-      if (!state.subjectMeta[currentSubject]) state.subjectMeta[currentSubject] = {};
-      state.subjectMeta[currentSubject].favourite = popupFavouriteSubjectEl.checked;
+    if (currentIsLesson) {
+      entry.goodLesson = popupGoodLessonEl.checked;
       entry.needsCatchUp = popupNeedsCatchupEl.checked;
       entry.missed = popupMissedLessonEl.checked;
       entry.catchUpSlots = currentCatchUpSlots.slice();
@@ -1070,17 +1073,17 @@
           } else {
             td.className = "cell-lesson";
             const subject = slot.subject;
-            const subjectMeta = state.subjectMeta[subject] || {};
-            const isFavSubject = !!subjectMeta.favourite;
+
             const needsCatchUp = !!slotState.needsCatchUp;
             const missed = !!slotState.missed;
-            const subjectClass = "subject-name" + (isFavSubject ? " fav-subject" : "");
+            const good = !!slotState.goodLesson;
 
             td.innerHTML =
               `<div class="subject-row">
-                <span class="${subjectClass}">${subject}</span>
+                <span class="subject-name">${subject}</span>
               </div>
               <div class="cell-flags">
+                ${good ? `<span class="flag good-flag">🙂</span>` : ""}
                 ${needsCatchUp ? `<span class="flag catchup-flag">📖</span>` : ""}
                 ${missed ? `<span class="flag missed-flag">❌</span>` : ""}
               </div>`;
@@ -1145,7 +1148,7 @@
     const key = getWeekKey(currentWeekDate);
     currentDocRef = doc(db, "timetables", "arlo-" + key);
 
-    state = { subjectMeta: {}, slotState: {} };
+    state = { slotState: {} };
     renderGrid();
 
     unsubscribe = onSnapshot(
@@ -1153,7 +1156,6 @@
       docSnap => {
         if (docSnap.exists()) {
           const data = docSnap.data();
-          state.subjectMeta = data.subjectMeta || {};
           state.slotState = data.slotState || {};
         } else {
           saveState();
