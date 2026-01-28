@@ -43,7 +43,6 @@
       margin: 0;
     }
 
-    /* UPDATED: top instruction text is white + bold + multiline */
     .header-instructions {
       font-size: 0.95rem;
       color: #e5e7eb;
@@ -58,9 +57,9 @@
       color: #f97316;
     }
 
-    #jsStatus.ready {
-      color: #22c55e;
-    }
+    #jsStatus.ready { color: #22c55e; }
+    #jsStatus.warn  { color: #facc15; }
+    #jsStatus.err   { color: #f87171; }
 
     .week-bar {
       display: flex;
@@ -82,15 +81,10 @@
       cursor: pointer;
     }
 
-    .week-bar button:hover {
-      background: #1f2937;
-    }
+    .week-bar button:hover { background: #1f2937; }
+    #weekLabel { font-weight: 500; }
 
-    #weekLabel {
-      font-weight: 500;
-    }
-
-    .missed-summary {
+    .missed-summary, .catchup-summary {
       text-align: center;
       margin-bottom: 8px;
       font-size: 0.95rem;
@@ -98,23 +92,11 @@
       border-radius: 999px;
       background: #111827;
       border: 1px solid #374151;
-      color: #f87171;
-      font-weight: 800;
     }
 
-    .catchup-summary {
-      text-align: center;
-      margin-bottom: 10px;
-      font-size: 0.95rem;
-      padding: 6px 10px;
-      border-radius: 999px;
-      background: #111827;
-      border: 1px solid #374151;
-      color: #facc15;
-      font-weight: 700;
-    }
+    .missed-summary { color: #f87171; font-weight: 800; }
+    .catchup-summary { color: #facc15; font-weight: 700; margin-bottom: 10px; }
 
-    /* small inline warning next to missed tally */
     .missed-warning {
       color: #facc15;
       font-weight: 900;
@@ -132,9 +114,7 @@
       table-layout: fixed;
     }
 
-    thead {
-      background: #111827;
-    }
+    thead { background: #111827; }
 
     th, td {
       padding: 6px 6px;
@@ -146,9 +126,7 @@
     }
 
     thead th:not(:first-child),
-    tbody td:not(.day-col) {
-      border-left: 1px solid #1f2937;
-    }
+    tbody td:not(.day-col) { border-left: 1px solid #1f2937; }
 
     th {
       font-weight: 600;
@@ -156,29 +134,15 @@
       text-align: center;
     }
 
-    th:first-child {
-      text-align: left;
-      width: 110px;
-    }
+    th:first-child { text-align: left; width: 110px; }
 
-    th.reg-col {
+    th.reg-col, th.tutor-col {
       width: 60px;
       font-size: 0.75rem;
     }
 
-    /* Tutor same width as Reg */
-    th.tutor-col {
-      width: 60px;
-      font-size: 0.75rem;
-    }
-
-    tbody tr:nth-child(odd) {
-      background: #030712;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #020617;
-    }
+    tbody tr:nth-child(odd) { background: #030712; }
+    tbody tr:nth-child(even) { background: #020617; }
 
     .day-col {
       background: #020617;
@@ -188,10 +152,7 @@
       font-weight: 600;
     }
 
-    .period-name {
-      font-weight: 600;
-    }
-
+    .period-name { font-weight: 600; }
     .period-time {
       font-size: 0.75rem;
       color: #9ca3af;
@@ -199,17 +160,13 @@
       font-variant-numeric: tabular-nums;
     }
 
-    td.cell-empty,
-    td.cell-special,
-    td.cell-lesson {
+    td.cell-empty, td.cell-special, td.cell-lesson {
       cursor: pointer;
       position: relative;
       transition: background 0.08s, transform 0.05s, box-shadow 0.08s;
     }
 
-    td.cell-empty:hover,
-    td.cell-special:hover,
-    td.cell-lesson:hover {
+    td.cell-empty:hover, td.cell-special:hover, td.cell-lesson:hover {
       background: #111827;
       transform: translateY(-1px);
       box-shadow: 0 8px 18px rgba(0,0,0,0.45);
@@ -228,9 +185,7 @@
       font-style: italic;
     }
 
-    td.cell-lesson {
-      padding: 5px 6px;
-    }
+    td.cell-lesson { padding: 5px 6px; }
 
     td.reg-cell {
       text-align: center;
@@ -247,10 +202,7 @@
       align-items: baseline;
     }
 
-    .subject-name {
-      font-weight: 600;
-      font-size: 0.85rem;
-    }
+    .subject-name { font-weight: 600; font-size: 0.85rem; }
 
     .cell-flags {
       display: flex;
@@ -273,20 +225,9 @@
       min-height: 16px;
     }
 
-    .catchup-flag {
-      border-color: #ef4444;
-      color: #ef4444;
-    }
-
-    .missed-flag {
-      border-color: #dc2626;
-      color: #fecaca;
-    }
-
-    .good-flag {
-      border-color: #22c55e;
-      color: #86efac;
-    }
+    .catchup-flag { border-color: #ef4444; color: #ef4444; }
+    .missed-flag  { border-color: #dc2626; color: #fecaca; }
+    .good-flag    { border-color: #22c55e; color: #86efac; }
 
     .notes-hint {
       margin-top: 3px;
@@ -300,11 +241,7 @@
       color: #38bdf8;
     }
 
-    .footer-note {
-      margin-top: 4px;
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
+    .footer-note { margin-top: 4px; font-size: 0.8rem; color: #6b7280; }
 
     .overlay {
       position: fixed;
@@ -315,9 +252,7 @@
       z-index: 50;
     }
 
-    .overlay.visible {
-      display: flex;
-    }
+    .overlay.visible { display: flex; }
 
     .overlay-backdrop {
       position: absolute;
@@ -337,26 +272,11 @@
       z-index: 1;
     }
 
-    .lesson-popup h2 {
-      margin: 0 0 6px;
-      font-size: 1rem;
-    }
+    .lesson-popup h2 { margin: 0 0 6px; font-size: 1rem; }
+    .lesson-popup h3 { margin: 10px 0 4px; font-size: 0.9rem; color: #e5e7eb; }
 
-    .lesson-popup h3 {
-      margin: 10px 0 4px;
-      font-size: 0.9rem;
-      color: #e5e7eb;
-    }
-
-    .popup-meta {
-      font-size: 0.8rem;
-      color: #9ca3af;
-      margin-bottom: 8px;
-    }
-
-    .popup-meta div + div {
-      margin-top: 2px;
-    }
+    .popup-meta { font-size: 0.8rem; color: #9ca3af; margin-bottom: 8px; }
+    .popup-meta div + div { margin-top: 2px; }
 
     .checkbox-row {
       display: flex;
@@ -433,9 +353,7 @@
       line-height: 1;
     }
 
-    .close-btn:hover {
-      color: #e5e7eb;
-    }
+    .close-btn:hover { color: #e5e7eb; }
 
     .catchup-list {
       margin: 4px 0 6px;
@@ -663,7 +581,17 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    onSnapshot,
+    runTransaction,
+    serverTimestamp
+    // Optional history (uncomment if your rules allow):
+    // collection,
+    // addDoc,
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCEdR0fe9R6Q5LunJ7zoPlpRgqc7-okq54",
@@ -677,6 +605,21 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+
+  // ---- Multi-user safety metadata ----
+  function getClientId() {
+    const k = "arloTimetableClientId";
+    let v = localStorage.getItem(k);
+    if (!v) {
+      v = "client_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+      localStorage.setItem(k, v);
+    }
+    return v;
+  }
+  const CLIENT_ID = getClientId();
+
+  // Safety: NEVER write whole documents with slotState unless you're intentionally resetting a week.
+  // This app only writes slotState.<slotKey> paths (one slot at a time) via transactions.
 
   const timetable = {
     periods: [
@@ -757,9 +700,10 @@
 
   const days = Object.keys(timetable.days);
 
-  let state = {
-    slotState: {}
-  };
+  let state = { slotState: {} };
+
+  // Snapshot meta (helps debugging + conflict banners if you want)
+  let lastServerVersion = 0;
 
   function slotKeyFor(dayName, periodKey) {
     return dayName + "_" + periodKey;
@@ -825,9 +769,100 @@
   let currentDocRef = null;
   let unsubscribe = null;
 
-  function saveState() {
+  // ---- FAILSAFE SAVE LAYER ----
+  function setStatus(text, cls) {
+    jsStatusEl.textContent = text;
+    jsStatusEl.classList.remove("ready", "warn", "err");
+    if (cls) jsStatusEl.classList.add(cls);
+  }
+
+  function sanitizeEntry(entry) {
+    // Only store known fields. (Prevents accidental “dump whole UI state into Firestore”.)
+    // Also keeps future fields like "subject meta" safe because we never overwrite doc root.
+    const clean = {};
+    if (typeof entry.notes === "string") clean.notes = entry.notes;
+    if (typeof entry.goodLesson === "boolean") clean.goodLesson = entry.goodLesson;
+    if (typeof entry.needsCatchUp === "boolean") clean.needsCatchUp = entry.needsCatchUp;
+    if (typeof entry.missed === "boolean") clean.missed = entry.missed;
+    if (Array.isArray(entry.catchUpSlots)) clean.catchUpSlots = entry.catchUpSlots.slice();
+    return clean;
+  }
+
+  async function ensureWeekDocExists() {
     if (!currentDocRef) return;
-    return setDoc(currentDocRef, state);
+    // Merge-only creation. This cannot wipe existing fields.
+    await setDoc(currentDocRef, {
+      slotState: {},
+      version: 0,
+      createdAt: serverTimestamp(),
+      createdBy: CLIENT_ID
+    }, { merge: true });
+  }
+
+  async function saveSingleSlot(slotKey, patchEntry) {
+    if (!currentDocRef) return;
+
+    // Guardrail: never allow a write that attempts to set slotState to {} at the doc root.
+    // This function only writes slotState.<slotKey>.
+    if (!slotKey || typeof slotKey !== "string") return;
+
+    const cleanPatch = sanitizeEntry(patchEntry);
+
+    setStatus("Saving…", "warn");
+
+    try {
+      await runTransaction(db, async (tx) => {
+        const snap = await tx.get(currentDocRef);
+
+        // Create doc if missing, but never with a destructive write.
+        if (!snap.exists()) {
+          tx.set(currentDocRef, {
+            slotState: {},
+            version: 0,
+            createdAt: serverTimestamp(),
+            createdBy: CLIENT_ID
+          }, { merge: true });
+        }
+
+        const data = snap.exists() ? snap.data() : {};
+        const currentVersion = typeof data.version === "number" ? data.version : 0;
+        const currentSlot = (data.slotState && data.slotState[slotKey]) ? data.slotState[slotKey] : {};
+
+        // Merge patch INTO existing slot, so concurrent edits don’t get erased.
+        // Arrays (catchUpSlots) intentionally replace, others merge.
+        const mergedSlot = {
+          ...(currentSlot || {}),
+          ...cleanPatch
+        };
+
+        // Write ONLY this slot path (cannot wipe the week).
+        const updateObj = {
+          [`slotState.${slotKey}`]: mergedSlot,
+          version: currentVersion + 1,
+          lastUpdatedAt: serverTimestamp(),
+          lastUpdatedBy: CLIENT_ID
+        };
+
+        tx.set(currentDocRef, updateObj, { merge: true });
+
+        // Optional: revision history (requires rules to allow)
+        // const revsRef = collection(currentDocRef, "revisions");
+        // tx.set(doc(revsRef), {
+        //   at: serverTimestamp(),
+        //   by: CLIENT_ID,
+        //   slotKey,
+        //   before: currentSlot || null,
+        //   after: mergedSlot
+        // });
+      });
+
+      setStatus("Synced via Firebase", "ready");
+    } catch (err) {
+      console.error("Save failed:", err);
+      setStatus("Save failed (retry?)", "err");
+      // Keep UI open so user can try again
+      throw err;
+    }
   }
 
   function buildCatchUpIndex() {
@@ -999,11 +1034,13 @@
     currentCatchUpSlots = [];
   }
 
-  popupSaveBtn.addEventListener("click", () => {
+  popupSaveBtn.addEventListener("click", async () => {
     if (!currentSlotKey) return;
 
+    // Update local state for instant UI response
     if (!state.slotState[currentSlotKey]) state.slotState[currentSlotKey] = {};
     const entry = state.slotState[currentSlotKey];
+
     entry.notes = popupNotesEl.value;
 
     if (currentIsLesson) {
@@ -1013,8 +1050,14 @@
       entry.catchUpSlots = currentCatchUpSlots.slice();
     }
 
-    saveState();
-    closeLessonPopup();
+    // Save ONLY this slot to Firestore (transactional + merge)
+    try {
+      await ensureWeekDocExists();
+      await saveSingleSlot(currentSlotKey, entry);
+      closeLessonPopup();
+    } catch {
+      // keep popup open so user doesn’t lose edits
+    }
   });
 
   popupCancelBtn.addEventListener("click", closeLessonPopup);
@@ -1036,7 +1079,6 @@
       if (entry.missed) missedCount++;
     }
 
-    // UPDATED: warning when missedCount === 2
     const warning = (missedCount === 2)
       ? `<span class="missed-warning">(One more missed lesson = No leisure Friday)</span>`
       : "";
@@ -1159,25 +1201,39 @@
     const key = getWeekKey(currentWeekDate);
     currentDocRef = doc(db, "timetables", "arlo-" + key);
 
+    // Start empty locally; we will hydrate from snapshot.
     state = { slotState: {} };
     renderGrid();
 
+    setStatus("Connecting…", null);
+
     unsubscribe = onSnapshot(
       currentDocRef,
-      docSnap => {
+      async (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
+
+          // Only take slotState; never assume ownership of other root fields (like "subject meta")
           state.slotState = data.slotState || {};
+          lastServerVersion = typeof data.version === "number" ? data.version : lastServerVersion;
+
+          renderGrid();
+          setStatus("Synced via Firebase", "ready");
         } else {
-          saveState();
+          // IMPORTANT FAILSAFE:
+          // Do NOT call a destructive setDoc(state). Only create with merge.
+          try {
+            await ensureWeekDocExists();
+            setStatus("Week created", "warn");
+          } catch (e) {
+            console.error("Failed to create week doc:", e);
+            setStatus("Sync error", "err");
+          }
         }
-        renderGrid();
-        jsStatusEl.textContent = "Synced via Firebase";
-        jsStatusEl.classList.add("ready");
       },
-      error => {
+      (error) => {
         console.error("Firestore error:", error);
-        jsStatusEl.textContent = "Sync error";
+        setStatus("Sync error", "err");
       }
     );
   }
